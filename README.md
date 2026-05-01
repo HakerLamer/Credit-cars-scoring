@@ -37,7 +37,7 @@ credit-card-ml/
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/YOUR_USERNAME/credit-card-ml
+git clone https://github.com/HakerLamer/credit-card-ml
 cd credit-card-ml
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
@@ -47,7 +47,7 @@ python models/train_model.py
 
 # 3. Run service
 python -m app.api
-# Service available at http://localhost:5000
+# Service available at http://localhost:8000
 ```
 
 ---
@@ -55,53 +55,54 @@ python -m app.api
 ## API Endpoints
 
 ### `GET /health`
+
 Returns service health status.
 
 ```bash
-curl http://localhost:5000/health
+curl http://localhost:8000/health
 ```
+
 ```json
 {
-  "status": "healthy",
-  "models_loaded": {"v1": true, "v2": true},
-  "timestamp": "2025-01-15T12:00:00Z"
+  "models_loaded":
+  {
+    "v1":true,
+    "v2":true
+  },
+  "status":"healthy",
+  "timestamp":"2026-05-01T15:58:55.293477Z"
 }
 ```
 
 ---
 
 ### `POST /predict`
+
 Returns default prediction for a client.
 
 **Request body:** JSON with 23 client features (see dataset description) + optional control fields.
 
 Optional control fields:
+
 - `model_version`: `"v1"` or `"v2"` — force a specific model
 - `client_id`: string — enables deterministic A/B routing (same client always gets same model)
 
 **Example:**
 
 ```bash
-curl -X POST http://localhost:5000/predict \
+curl -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
-  -d '{
-    "LIMIT_BAL": 50000, "SEX": 2, "EDUCATION": 2, "MARRIAGE": 1, "AGE": 35,
-    "PAY_0": 0, "PAY_2": 0, "PAY_3": 0, "PAY_4": 0, "PAY_5": 0, "PAY_6": 0,
-    "BILL_AMT1": 10000, "BILL_AMT2": 9000, "BILL_AMT3": 8000,
-    "BILL_AMT4": 7000, "BILL_AMT5": 6000, "BILL_AMT6": 5000,
-    "PAY_AMT1": 2000, "PAY_AMT2": 2000, "PAY_AMT3": 2000,
-    "PAY_AMT4": 2000, "PAY_AMT5": 2000, "PAY_AMT6": 2000,
-    "model_version": "v1"
-  }'
+  -d '{\"LIMIT_BAL\":50000,\"SEX\":2,\"EDUCATION\":2,\"MARRIAGE\":1,\"AGE\":35,\"PAY_0\":0,\"PAY_2\":0,\"PAY_3\":0,\"PAY_4\":0,\"PAY_5\":0,\"PAY_6\":0,\"BILL_AMT1\":10000,\"BILL_AMT2\":9000,\"BILL_AMT3\":8000,\"BILL_AMT4\":7000,\"BILL_AMT5\":6000,\"BILL_AMT6\":5000,\"PAY_AMT1\":2000,\"PAY_AMT2\":2000,\"PAY_AMT3\":2000,\"PAY_AMT4\":2000,\"PAY_AMT5\":2000,\"PAY_AMT6\":2000,\"model_version\":\"v1\"}'
 ```
 
 **Response:**
+
 ```json
 {
-  "prediction": 0,
-  "probability": 0.2341,
-  "model_version": "v1",
-  "timestamp": "2025-01-15T12:00:00Z"
+  "model_version":"v1",
+  "prediction":1,
+  "probability":0.5324,
+  "timestamp":"2026-05-01T15:54:56.156351Z"
 }
 ```
 
@@ -109,19 +110,21 @@ curl -X POST http://localhost:5000/predict \
 - `probability`: probability of default (class 1)
 
 **A/B routing example (by client_id):**
+
 ```bash
-curl -X POST http://localhost:5000/predict \
+curl -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
-  -d '{"client_id": "user_12345", "LIMIT_BAL": 50000, ...}'
+  -d '{"client_id": "user_12345", "LIMIT_BAL": 80000, ...}'
 ```
 
 ---
 
 ### `GET /models`
+
 Returns model metadata and performance metrics.
 
 ```bash
-curl http://localhost:5000/models
+curl http://localhost:8000/models
 ```
 
 ---
@@ -132,7 +135,7 @@ curl http://localhost:5000/models
 
 ```bash
 docker build -t credit-card-ml .
-docker run -p 5000:5000 credit-card-ml
+docker run -p 8000:8000 credit-card-ml
 ```
 
 ### Docker Compose (with NGINX)
@@ -144,8 +147,8 @@ docker-compose up --build
 ### Docker Hub
 
 ```
-docker pull YOUR_DOCKERHUB_USERNAME/credit-card-ml:latest
-docker run -p 5000:5000 YOUR_DOCKERHUB_USERNAME/credit-card-ml:latest
+docker pull tomhetfrainsiden/credit-card-ml:latest
+docker run -p 8000:8000 tomhetfrainsiden/credit-card-ml:latest
 ```
 
 ---
@@ -173,6 +176,7 @@ python -m pytest tests/ -v
 ## Architecture & MLOps
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for:
+
 - Monolith vs microservices decision
 - RabbitMQ message broker concept
 - uWSGI + NGINX explanation

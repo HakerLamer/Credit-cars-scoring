@@ -15,7 +15,7 @@ import json
 BASE = os.path.dirname(os.path.abspath(__file__))
 
 # Load data
-df = pd.read_csv(os.path.join(BASE, '../data/UCI_Credit_Card.csv'))
+df = pd.read_csv(os.path.join(BASE, '../UCI_Credit_Card.csv'))
 df = df.drop(columns=['ID'])
 df.columns = [c.replace('.', '_') for c in df.columns]
 
